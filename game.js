@@ -11,7 +11,8 @@ let gameState = {
     history: [],
     currentNumbers: [0, 0, 0, 0],
     operators: ['', '', ''],
-    parens: new Set() // Stores paren pairs as "start-end"
+    parens: new Set(), // Stores paren pairs as "start-end"
+    inputHistory: [] // Track input order for proper undo: {type: 'operator'|'paren', index: number, value: string}
 };
 
 // Keyboard state for simultaneous key press
@@ -97,6 +98,7 @@ function loadProblem() {
 function clearInput(keepResultDisplay = false) {
     gameState.operators = ['', '', ''];  // Initialize with empty
     gameState.parens = new Set();
+    gameState.inputHistory = [];
     selectedParenIndices = [];
 
     // Reset result display to initial state (unless keepResultDisplay is true)
@@ -287,10 +289,12 @@ function endGame() {
     const modal = document.getElementById('gameEndModal');
     const message = document.getElementById('modalMessage');
 
-    message.innerHTML = `
-        <strong>タイム:</strong> ${minutes}分${seconds}秒<br>
-        <strong>正解数:</strong> ${gameState.correctCount} / ${gameState.mode}
-    `;
+    message.value = `Make 10
+
+タイム: ${minutes}分${seconds}秒
+正解数: ${gameState.correctCount} / ${gameState.mode}
+
+https://zakhor.github.io/Make10/`;
 
     modal.classList.add('active');
 }
@@ -349,11 +353,13 @@ function cycleOperators(op) {
     for (let i = 0; i < 3; i++) {
         if (gameState.operators[i] === '') {
             gameState.operators[i] = op;
+            gameState.inputHistory.push({ type: 'operator', index: i, value: op });
             updateDisplay();
             return;
         } else if (i === 2) {
             // If all slots filled, cycle the last one
             gameState.operators[i] = op;
+            gameState.inputHistory.push({ type: 'operator', index: i, value: op });
             updateDisplay();
             return;
         }
@@ -372,34 +378,30 @@ function checkParentheses() {
         // Toggle paren pair
         if (gameState.parens.has(parenKey)) {
             gameState.parens.delete(parenKey);
+            // Don't add to history when deleting
         } else {
             gameState.parens.add(parenKey);
+            gameState.inputHistory.push({ type: 'paren', value: parenKey });
         }
         updateDisplay();
     }
 }
 
 function deleteLastInput() {
-    // Priority: parentheses > operators
-
-    // First check if there are any parentheses
-    if (gameState.parens.size > 0) {
-        // Delete last paren pair
-        const parenArray = Array.from(gameState.parens);
-        const lastParen = parenArray[parenArray.length - 1];
-        gameState.parens.delete(lastParen);
-        updateDisplay();
+    // Delete based on input history (most recent input first)
+    if (gameState.inputHistory.length === 0) {
         return;
     }
 
-    // Delete last operator (revert to empty)
-    for (let i = 2; i >= 0; i--) {
-        if (gameState.operators[i] !== '') {
-            gameState.operators[i] = '';
-            updateDisplay();
-            return;
-        }
+    const lastInput = gameState.inputHistory.pop();
+
+    if (lastInput.type === 'operator') {
+        gameState.operators[lastInput.index] = '';
+    } else if (lastInput.type === 'paren') {
+        gameState.parens.delete(lastInput.value);
     }
+
+    updateDisplay();
 }
 
 // Button event listeners
@@ -430,9 +432,11 @@ function setupButtonListeners() {
             if (currentIndex === -1) {
                 // If empty, start with '+'
                 gameState.operators[i] = '+';
+                gameState.inputHistory.push({ type: 'operator', index: i, value: '+' });
             } else {
                 // Cycle through the operators
                 gameState.operators[i] = ops[(currentIndex + 1) % 4];
+                gameState.inputHistory.push({ type: 'operator', index: i, value: gameState.operators[i] });
             }
             updateDisplay();
         });
@@ -466,8 +470,10 @@ function setupButtonListeners() {
                 // Toggle paren pair
                 if (gameState.parens.has(parenKey)) {
                     gameState.parens.delete(parenKey);
+                    // Don't add to history when deleting
                 } else {
                     gameState.parens.add(parenKey);
+                    gameState.inputHistory.push({ type: 'paren', value: parenKey });
                 }
 
                 // Clear selection
