@@ -1,0 +1,581 @@
+// Make 10 Game Logic
+
+// Game state
+let gameState = {
+    mode: 5,
+    currentProblem: 0,
+    problems: [],
+    correctCount: 0,
+    startTime: null,
+    timerInterval: null,
+    history: [],
+    currentNumbers: [0, 0, 0, 0],
+    operators: ['', '', ''],
+    parens: new Set() // Stores paren pairs as "start-end"
+};
+
+// Keyboard state for simultaneous key press
+let keysPressed = new Set();
+
+// Paren selection state for mouse input
+let selectedParenIndices = [];
+
+// Initialize game
+function initGame() {
+    setupModeButtons();
+    resetGame();
+}
+
+function setupModeButtons() {
+    document.querySelectorAll('.mode-button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (gameState.startTime !== null) {
+                if (!confirm('進行中のゲームをリセットしますか？')) {
+                    return;
+                }
+            }
+
+            document.querySelectorAll('.mode-button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const mode = btn.dataset.mode;
+            gameState.mode = mode === 'all' ? PROBLEMS.length : parseInt(mode);
+            resetGame();
+        });
+    });
+}
+
+function resetGame() {
+    // Stop timer
+    if (gameState.timerInterval) {
+        clearInterval(gameState.timerInterval);
+    }
+
+    // Shuffle problems
+    const shuffled = [...PROBLEMS].sort(() => Math.random() - 0.5);
+    gameState.problems = shuffled.slice(0, gameState.mode);
+    gameState.currentProblem = 0;
+    gameState.correctCount = 0;
+    gameState.startTime = null;
+    gameState.history = [];
+
+    // Update UI
+    document.getElementById('totalProblems').textContent = gameState.mode;
+    document.getElementById('currentProblem').textContent = '1';
+    document.getElementById('correctCount').textContent = '0';
+    document.getElementById('timer').textContent = '00:00';
+    document.getElementById('historySection').style.display = 'none';
+    document.getElementById('historyGrid').innerHTML = '';
+
+    // Load first problem
+    loadProblem();
+    clearInput();
+}
+
+function loadProblem() {
+    if (gameState.currentProblem >= gameState.problems.length) {
+        endGame();
+        return;
+    }
+
+    const problem = gameState.problems[gameState.currentProblem];
+    const numbers = problem.split('').map(n => parseInt(n));
+    gameState.currentNumbers = numbers;
+
+    // Start timer on first problem
+    if (gameState.currentProblem === 0 && gameState.startTime === null) {
+        startTimer();
+    }
+
+    // Clear input (keep result display to show previous answer)
+    clearInput(true);
+
+    // Update display
+    updateDisplay();
+}
+
+function clearInput(keepResultDisplay = false) {
+    gameState.operators = ['', '', ''];  // Initialize with empty
+    gameState.parens = new Set();
+    selectedParenIndices = [];
+
+    // Reset result display to initial state (unless keepResultDisplay is true)
+    if (!keepResultDisplay) {
+        const resultDiv = document.getElementById('resultDisplay');
+        resultDiv.className = 'result-display empty';
+        resultDiv.textContent = 'ボタンを押してください';
+    }
+
+    // Update display immediately
+    updateDisplay();
+}
+
+function updateResultDisplay() {
+    const resultDiv = document.getElementById('resultDisplay');
+    const expression = buildExpression();
+
+    if (expression === '') {
+        resultDiv.className = 'result-display empty';
+        resultDiv.textContent = 'ボタンを押してください';
+        return;
+    }
+
+    try {
+        const result = evaluateExpression(expression);
+
+        if (Math.abs(result - 10) < 0.0001) {
+            resultDiv.className = 'result-display correct';
+            resultDiv.textContent = result.toFixed(2);
+        } else {
+            resultDiv.className = 'result-display incorrect';
+            resultDiv.textContent = result.toFixed(2);
+        }
+    } catch (e) {
+        resultDiv.className = 'result-display incorrect';
+        resultDiv.textContent = 'エラー';
+    }
+}
+
+function buildExpression() {
+    let expr = '';
+    let parenList = Array.from(gameState.parens).map(p => {
+        const [start, end] = p.split('-').map(n => parseInt(n));
+        return { start, end };
+    });
+
+    for (let i = 0; i < 4; i++) {
+        // Check for opening parens
+        parenList.forEach(p => {
+            if (p.start === i * 2) expr += '(';
+        });
+
+        // Add number (no signs - all positive)
+        expr += gameState.currentNumbers[i];
+
+        // Check for closing parens
+        parenList.forEach(p => {
+            if (p.end === i * 2 + 1) expr += ')';
+        });
+
+        // Add operator
+        if (i < 3 && gameState.operators[i]) {
+            expr += gameState.operators[i];
+        }
+    }
+
+    return expr.trim();
+}
+
+function evaluateExpression(expr) {
+    // Replace operators
+    expr = expr.replace(/×/g, '*').replace(/÷/g, '/');
+
+    // Remove spaces
+    expr = expr.replace(/\s/g, '');
+
+    // Validate expression
+    if (!/^[\d+\-*/().]+$/.test(expr)) {
+        throw new Error('Invalid characters');
+    }
+
+    // Evaluate
+    return Function('"use strict"; return (' + expr + ')')();
+}
+
+function submitAnswer() {
+    // Disable submit when modal is active
+    const modal = document.getElementById('gameEndModal');
+    if (modal.classList.contains('active')) {
+        return;
+    }
+
+    // Check if all operators are filled
+    for (let i = 0; i < 3; i++) {
+        if (gameState.operators[i] === '') {
+            const resultDiv = document.getElementById('resultDisplay');
+            resultDiv.className = 'result-display incorrect';
+            resultDiv.textContent = 'すべての演算子を入力してください';
+            return;
+        }
+    }
+
+    const expression = buildExpression();
+
+    if (expression === '') {
+        // Show error in result display instead of alert
+        const resultDiv = document.getElementById('resultDisplay');
+        resultDiv.className = 'result-display incorrect';
+        resultDiv.textContent = 'ボタンを押してください';
+        return;
+    }
+
+    try {
+        const result = evaluateExpression(expression);
+        const isCorrect = Math.abs(result - 10) < 0.0001;
+
+        // Display result (only on submit)
+        updateResultDisplay();
+
+        // Add to history
+        gameState.history.push({
+            problem: gameState.currentNumbers.join(''),
+            expression: expression,
+            result: result,
+            correct: isCorrect
+        });
+
+        if (isCorrect) {
+            gameState.correctCount++;
+            document.getElementById('correctCount').textContent = gameState.correctCount;
+
+            // Move to next problem immediately (no setTimeout)
+            gameState.currentProblem++;
+            document.getElementById('currentProblem').textContent = gameState.currentProblem + 1;
+            loadProblem();
+        }
+
+        updateHistory();
+    } catch (e) {
+        // Show error in result display instead of alert
+        const resultDiv = document.getElementById('resultDisplay');
+        resultDiv.className = 'result-display incorrect';
+        resultDiv.textContent = 'エラー';
+    }
+}
+
+function updateHistory() {
+    const historySection = document.getElementById('historySection');
+    const historyGrid = document.getElementById('historyGrid');
+
+    if (gameState.history.length === 0) {
+        historySection.style.display = 'none';
+        return;
+    }
+
+    historySection.style.display = 'block';
+    historyGrid.innerHTML = '';
+
+    gameState.history.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = `history-item ${item.correct ? 'correct' : 'incorrect'}`;
+        div.innerHTML = `
+            <div><strong>${item.problem}</strong></div>
+            <div style="font-size: 0.85em; margin-top: 3px;">${item.expression}</div>
+            <div style="font-size: 0.85em; color: #666;">= ${item.result.toFixed(2)}</div>
+        `;
+        historyGrid.appendChild(div);
+    });
+}
+
+function startTimer() {
+    gameState.startTime = Date.now();
+    gameState.timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+        const seconds = (elapsed % 60).toString().padStart(2, '0');
+        document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+    }, 1000);
+}
+
+function endGame() {
+    clearInterval(gameState.timerInterval);
+
+    const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+
+    const modal = document.getElementById('gameEndModal');
+    const message = document.getElementById('modalMessage');
+
+    message.innerHTML = `
+        <strong>タイム:</strong> ${minutes}分${seconds}秒<br>
+        <strong>正解数:</strong> ${gameState.correctCount} / ${gameState.mode}
+    `;
+
+    modal.classList.add('active');
+}
+
+// Keyboard event handling
+document.addEventListener('keydown', (e) => {
+    // Disable game controls when modal is active
+    const modal = document.getElementById('gameEndModal');
+    if (modal.classList.contains('active')) {
+        return;
+    }
+
+    keysPressed.add(e.key.toLowerCase());
+
+    // Operator input (Q = +, W = -, E = ×, R = ÷)
+    if (e.key.toLowerCase() === 'q') {
+        cycleOperators('+');
+    } else if (e.key.toLowerCase() === 'w') {
+        cycleOperators('-');
+    } else if (e.key.toLowerCase() === 'e') {
+        cycleOperators('×');
+    } else if (e.key.toLowerCase() === 'r') {
+        cycleOperators('÷');
+    }
+
+    // Parentheses (number combinations)
+    else if (['1', '2', '3', '4'].includes(e.key)) {
+        // Will be handled in combination
+    }
+
+    // Submit (Enter)
+    else if (e.key === 'Enter') {
+        e.preventDefault();
+        submitAnswer();
+    }
+
+    // Backspace (delete last paren or operator/sign)
+    else if (e.key === 'Backspace') {
+        e.preventDefault();
+        deleteLastInput();
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    // Check for number combinations before removing key
+    if (['1', '2', '3', '4'].includes(e.key)) {
+        checkParentheses();
+    }
+
+    keysPressed.delete(e.key.toLowerCase());
+});
+
+
+function cycleOperators(op) {
+    // Find first empty operator slot
+    for (let i = 0; i < 3; i++) {
+        if (gameState.operators[i] === '') {
+            gameState.operators[i] = op;
+            updateDisplay();
+            return;
+        } else if (i === 2) {
+            // If all slots filled, cycle the last one
+            gameState.operators[i] = op;
+            updateDisplay();
+            return;
+        }
+    }
+}
+
+function checkParentheses() {
+    const numberKeys = ['1', '2', '3', '4'].filter(k => keysPressed.has(k));
+
+    if (numberKeys.length === 2) {
+        const nums = numberKeys.map(k => parseInt(k)).sort((a, b) => a - b);
+        const start = (nums[0] - 1) * 2;
+        const end = (nums[1] - 1) * 2 + 1;
+        const parenKey = `${start}-${end}`;
+
+        // Toggle paren pair
+        if (gameState.parens.has(parenKey)) {
+            gameState.parens.delete(parenKey);
+        } else {
+            gameState.parens.add(parenKey);
+        }
+        updateDisplay();
+    }
+}
+
+function deleteLastInput() {
+    // Priority: parentheses > operators
+
+    // First check if there are any parentheses
+    if (gameState.parens.size > 0) {
+        // Delete last paren pair
+        const parenArray = Array.from(gameState.parens);
+        const lastParen = parenArray[parenArray.length - 1];
+        gameState.parens.delete(lastParen);
+        updateDisplay();
+        return;
+    }
+
+    // Delete last operator (revert to empty)
+    for (let i = 2; i >= 0; i--) {
+        if (gameState.operators[i] !== '') {
+            gameState.operators[i] = '';
+            updateDisplay();
+            return;
+        }
+    }
+}
+
+// Button event listeners
+document.getElementById('submitBtn').addEventListener('click', submitAnswer);
+document.getElementById('clearBtn').addEventListener('click', () => {
+    const modal = document.getElementById('gameEndModal');
+    if (modal.classList.contains('active')) return;
+    clearInput();
+});
+document.getElementById('resetBtn').addEventListener('click', () => {
+    const modal = document.getElementById('gameEndModal');
+    if (modal.classList.contains('active')) return;
+    if (confirm('ゲームをリセットしますか？')) {
+        resetGame();
+    }
+});
+
+// Setup button click listeners
+function setupButtonListeners() {
+    // Operator buttons - cycle through +, -, ×, ÷ (no blank option)
+    for (let i = 0; i < 3; i++) {
+        document.getElementById(`opBtn${i}`).addEventListener('click', () => {
+            const modal = document.getElementById('gameEndModal');
+            if (modal.classList.contains('active')) return;
+
+            const ops = ['+', '-', '×', '÷'];
+            const currentIndex = ops.indexOf(gameState.operators[i]);
+            if (currentIndex === -1) {
+                // If empty, start with '+'
+                gameState.operators[i] = '+';
+            } else {
+                // Cycle through the operators
+                gameState.operators[i] = ops[(currentIndex + 1) % 4];
+            }
+            updateDisplay();
+        });
+    }
+
+    // Paren buttons - select two to create/remove pair
+    for (let i = 0; i < 4; i++) {
+        document.getElementById(`parenBtn${i}`).addEventListener('click', () => {
+            const modal = document.getElementById('gameEndModal');
+            if (modal.classList.contains('active')) return;
+
+            const numberIndex = i; // 0-3 for numbers 1-4
+
+            // Toggle selection
+            if (selectedParenIndices.includes(numberIndex)) {
+                selectedParenIndices = selectedParenIndices.filter(idx => idx !== numberIndex);
+            } else {
+                selectedParenIndices.push(numberIndex);
+            }
+
+            // Update button visuals
+            updateParenButtonVisuals();
+
+            // If two selected, create/remove paren pair
+            if (selectedParenIndices.length === 2) {
+                const [num1, num2] = selectedParenIndices.sort((a, b) => a - b);
+                const start = num1 * 2;  // Convert to paren index
+                const end = num2 * 2 + 1;
+                const parenKey = `${start}-${end}`;
+
+                // Toggle paren pair
+                if (gameState.parens.has(parenKey)) {
+                    gameState.parens.delete(parenKey);
+                } else {
+                    gameState.parens.add(parenKey);
+                }
+
+                // Clear selection
+                selectedParenIndices = [];
+                updateParenButtonVisuals();
+                updateDisplay();
+            }
+        });
+    }
+}
+
+function updateParenButtonVisuals() {
+    for (let i = 0; i < 4; i++) {
+        const btn = document.getElementById(`parenBtn${i}`);
+        if (selectedParenIndices.includes(i)) {
+            btn.classList.add('selected');
+        } else {
+            btn.classList.remove('selected');
+        }
+    }
+}
+
+function updateDisplay() {
+    // Update problem display to show current expression
+    const expression = buildDisplayExpression();
+    document.getElementById('problemDisplay').textContent = expression;
+
+    // Update operator button text
+    for (let i = 0; i < 3; i++) {
+        const btn = document.getElementById(`opBtn${i}`);
+        btn.textContent = gameState.operators[i] || '　';
+    }
+
+    // Update paren button text
+    updateParenButtonText();
+
+    // DO NOT update result display in real-time (only on submit)
+}
+
+function updateParenButtonText() {
+    // Count opening and closing parens for each number position
+    const openParens = [0, 0, 0, 0];
+    const closeParens = [0, 0, 0, 0];
+
+    gameState.parens.forEach(parenKey => {
+        const [start, end] = parenKey.split('-').map(n => parseInt(n));
+        const startNum = Math.floor(start / 2);  // 0-3 for numbers 1-4
+        const endNum = Math.floor(end / 2);      // 0-3 for numbers 1-4
+        openParens[startNum]++;
+        closeParens[endNum]++;
+    });
+
+    // Update button text
+    for (let i = 0; i < 4; i++) {
+        const btn = document.getElementById(`parenBtn${i}`);
+        let text = '';
+        if (openParens[i] > 0) {
+            text += '('.repeat(openParens[i]);
+        }
+        if (closeParens[i] > 0) {
+            text += ')'.repeat(closeParens[i]);
+        }
+        btn.textContent = text || '　';
+
+        if (text) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    }
+}
+
+function buildDisplayExpression() {
+    let expr = '';
+    let parenList = Array.from(gameState.parens).map(p => {
+        const [start, end] = p.split('-').map(n => parseInt(n));
+        return { start, end };
+    });
+
+    for (let i = 0; i < 4; i++) {
+        // Add opening parens
+        parenList.forEach(p => {
+            if (p.start === i * 2) expr += '( ';
+        });
+
+        // Add number (no signs - all positive)
+        expr += gameState.currentNumbers[i];
+
+        // Add closing parens
+        parenList.forEach(p => {
+            if (p.end === i * 2 + 1) expr += ' )';
+        });
+
+        // Add operator
+        if (i < 3) {
+            if (gameState.operators[i]) {
+                expr += ' ' + gameState.operators[i] + ' ';
+            } else {
+                expr += '   ';  // Three spaces for empty operator
+            }
+        }
+    }
+
+    return expr.trim();
+}
+
+// Initialize on load
+window.onload = () => {
+    initGame();
+    setupButtonListeners();
+};
