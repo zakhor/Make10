@@ -580,8 +580,38 @@ function buildDisplayExpression() {
     return expr.trim();
 }
 
+// Copy result to clipboard
+function copyResultToClipboard() {
+    const message = document.getElementById('modalMessage');
+    message.select();
+    document.execCommand('copy');
+
+    // Show toast notification
+    showToast('コピーしました！');
+}
+
+// Show toast notification
+function showToast(text) {
+    const toast = document.getElementById('toast');
+    toast.textContent = text;
+    toast.classList.add('show');
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 2000);
+}
+
 // Initialize on load
 window.onload = () => {
     initGame();
     setupButtonListeners();
+
+    // Restrict Ctrl+A to textarea only when modal is active
+    const modalMessage = document.getElementById('modalMessage');
+    modalMessage.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key.toLowerCase() === 'a') {
+            e.preventDefault();
+            e.stopPropagation();
+            modalMessage.select();
+        }
+    });
 };

@@ -407,6 +407,27 @@
                 width: 25px;
             }
         }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 10000;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -504,11 +525,17 @@
     <!-- Game End Modal -->
     <div class="modal" id="gameEndModal">
         <div class="modal-content">
-            <h2>セッション完了！</h2>
+            <h2>クリア！</h2>
             <textarea id="modalMessage" readonly style="width: 100%; min-height: 150px; font-family: monospace; font-size: 14px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; resize: vertical; margin: 10px 0;"></textarea>
-            <button class="modal-button" onclick="location.reload()">もう一度プレイ</button>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button class="modal-button" id="copyButton" onclick="copyResultToClipboard()">コピー</button>
+                <button class="modal-button" onclick="location.reload()">もう一度プレイ</button>
+            </div>
         </div>
     </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast"></div>
 
     <!-- External JavaScript files -->
     <script src="problems.js"></script>
