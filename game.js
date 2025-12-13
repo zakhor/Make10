@@ -105,7 +105,7 @@ function clearInput(keepResultDisplay = false) {
     if (!keepResultDisplay) {
         const resultDiv = document.getElementById('resultDisplay');
         resultDiv.className = 'result-display empty';
-        resultDiv.textContent = 'ボタンを押してください';
+        resultDiv.textContent = '記号を入力して計算式を確定してください';
     }
 
     // Update display immediately
@@ -118,7 +118,7 @@ function updateResultDisplay() {
 
     if (expression === '') {
         resultDiv.className = 'result-display empty';
-        resultDiv.textContent = 'ボタンを押してください';
+        resultDiv.textContent = '記号を入力して計算式を確定してください';
         return;
     }
 
