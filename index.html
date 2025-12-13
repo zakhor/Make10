@@ -40,6 +40,8 @@
             color: #666;
             margin-bottom: 25px;
             font-size: 1.1em;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
         .mode-selection {
@@ -179,8 +181,8 @@
             }
 
             .row-label {
-                min-width: 60px;
-                font-size: 1em;
+                min-width: 50px;
+                font-size: 0.9em;
             }
 
             .operator-button {
@@ -190,9 +192,9 @@
             }
 
             .paren-button {
-                padding: 10px 8px;
-                font-size: 1em;
-                min-width: 50px;
+                padding: 8px 5px;
+                font-size: 0.9em;
+                min-width: 45px;
                 flex: 1;
             }
         }
@@ -247,12 +249,14 @@
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 20px;
-            font-size: 1.5em;
+            font-size: 1.0em;
             font-weight: bold;
             min-height: 70px;
             display: flex;
             align-items: center;
             justify-content: center;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
         .result-display.correct {
@@ -441,6 +445,16 @@
 
             .input-cell.paren {
                 width: 25px;
+            }
+
+            .action-button {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+
+            .modal-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
             }
         }
 

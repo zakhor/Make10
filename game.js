@@ -119,6 +119,7 @@ function updateResultDisplay() {
     if (expression === '') {
         resultDiv.className = 'result-display empty';
         resultDiv.textContent = '記号を入力して計算式を確定してください';
+        adjustFontSize(resultDiv);
         return;
     }
 
@@ -136,6 +137,8 @@ function updateResultDisplay() {
         resultDiv.className = 'result-display incorrect';
         resultDiv.textContent = 'エラー';
     }
+
+    adjustFontSize(resultDiv);
 }
 
 function buildExpression() {
@@ -538,12 +541,27 @@ function updateDisplay() {
 }
 
 function adjustFontSize(element) {
+    // Get default size from CSS class or set defaults
+    let defaultSize = '2em';
+    let defaultSpacing = '5px';
+
+    if (element.classList.contains('subtitle')) {
+        defaultSize = '1.1em';
+        defaultSpacing = '0px';
+    } else if (element.classList.contains('result-display')) {
+        defaultSize = '1.0em';
+        defaultSpacing = '0px';
+    }
+
     // Reset to default size
-    element.style.fontSize = '2em';
-    element.style.letterSpacing = '5px';
+    element.style.fontSize = defaultSize;
+    element.style.letterSpacing = defaultSpacing;
+
+    // Set minimum font size based on element type
+    const minFontSize = element.classList.contains('result-display') ? 8 : 12;
 
     // Check if content overflows
-    while (element.scrollWidth > element.clientWidth && parseFloat(getComputedStyle(element).fontSize) > 12) {
+    while (element.scrollWidth > element.clientWidth && parseFloat(getComputedStyle(element).fontSize) > minFontSize) {
         const currentSize = parseFloat(getComputedStyle(element).fontSize);
         element.style.fontSize = (currentSize - 2) + 'px';
 
@@ -646,6 +664,15 @@ function showToast(text) {
 window.onload = () => {
     initGame();
     setupButtonListeners();
+
+    // Adjust subtitle font size to fit container
+    const subtitle = document.querySelector('.subtitle');
+    adjustFontSize(subtitle);
+
+    // Re-adjust on window resize
+    window.addEventListener('resize', () => {
+        adjustFontSize(subtitle);
+    });
 
     // Restrict Ctrl+A to textarea only when modal is active
     const modalMessage = document.getElementById('modalMessage');
