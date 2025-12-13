@@ -141,14 +141,35 @@
         }
 
         .operator-button, .paren-button {
-            padding: 15px 25px;
             border: 2px solid;
-            border-radius: 8px;
             font-size: 1.3em;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
             font-family: 'Courier New', monospace;
+        }
+
+        .operator-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #f3e5f5;
+            border-color: #9c27b0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .operator-button:hover {
+            background: #e1bee7;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
+        }
+
+        .paren-button {
+            padding: 15px 25px;
+            border-radius: 8px;
             min-width: 80px;
         }
 
@@ -162,24 +183,18 @@
                 font-size: 1em;
             }
 
-            .operator-button, .paren-button {
+            .operator-button {
+                width: 50px;
+                height: 50px;
+                font-size: 1em;
+            }
+
+            .paren-button {
                 padding: 10px 8px;
                 font-size: 1em;
                 min-width: 50px;
                 flex: 1;
             }
-        }
-
-        .operator-button {
-            background: #f3e5f5;
-            border-color: #9c27b0;
-            color: #333;
-        }
-
-        .operator-button:hover {
-            background: #e1bee7;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
         }
 
         .paren-button {
@@ -449,6 +464,67 @@
         .toast.show {
             opacity: 1;
         }
+
+        /* Flick picker */
+        .flick-picker {
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .flick-picker.active {
+            pointer-events: auto;
+        }
+
+        .flick-option {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: #f3e5f5;
+            border: 3px solid #9c27b0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+
+        .flick-option:hover {
+            background: #e1bee7;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(156, 39, 176, 0.4);
+        }
+
+        .flick-top {
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+
+        .flick-right {
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .flick-bottom {
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+        }
+
+        .flick-left {
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
     </style>
 </head>
 <body>
@@ -553,6 +629,14 @@
 
     <!-- Toast notification -->
     <div id="toast" class="toast"></div>
+
+    <!-- Flick picker overlay -->
+    <div id="flickPicker" class="flick-picker" style="display: none;">
+        <div class="flick-option flick-top" data-op="+">+</div>
+        <div class="flick-option flick-right" data-op="÷">÷</div>
+        <div class="flick-option flick-bottom" data-op="-">−</div>
+        <div class="flick-option flick-left" data-op="×">×</div>
+    </div>
 
     <!-- External JavaScript files -->
     <script src="problems.js"></script>

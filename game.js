@@ -419,26 +419,46 @@ document.getElementById('resetBtn').addEventListener('click', () => {
     }
 });
 
+// Flick picker state
+let currentFlickIndex = -1;
+
+function showFlickPicker(buttonElement, operatorIndex) {
+    currentFlickIndex = operatorIndex;
+    const picker = document.getElementById('flickPicker');
+    const rect = buttonElement.getBoundingClientRect();
+
+    // Position picker centered on the button
+    picker.style.left = (rect.left + rect.width / 2 - 100) + 'px';
+    picker.style.top = (rect.top + rect.height / 2 - 100) + 'px';
+    picker.style.display = 'block';
+    picker.classList.add('active');
+}
+
+function hideFlickPicker() {
+    const picker = document.getElementById('flickPicker');
+    picker.classList.remove('active');
+    picker.style.display = 'none';
+    currentFlickIndex = -1;
+}
+
+function selectOperator(op) {
+    if (currentFlickIndex === -1) return;
+
+    gameState.operators[currentFlickIndex] = op;
+    gameState.inputHistory.push({ type: 'operator', index: currentFlickIndex, value: op });
+    updateDisplay();
+    hideFlickPicker();
+}
+
 // Setup button click listeners
 function setupButtonListeners() {
-    // Operator buttons - cycle through +, -, ×, ÷ (no blank option)
+    // Operator buttons - show flick picker
     for (let i = 0; i < 3; i++) {
-        document.getElementById(`opBtn${i}`).addEventListener('click', () => {
+        document.getElementById(`opBtn${i}`).addEventListener('click', (e) => {
             const modal = document.getElementById('gameEndModal');
             if (modal.classList.contains('active')) return;
 
-            const ops = ['+', '-', '×', '÷'];
-            const currentIndex = ops.indexOf(gameState.operators[i]);
-            if (currentIndex === -1) {
-                // If empty, start with '+'
-                gameState.operators[i] = '+';
-                gameState.inputHistory.push({ type: 'operator', index: i, value: '+' });
-            } else {
-                // Cycle through the operators
-                gameState.operators[i] = ops[(currentIndex + 1) % 4];
-                gameState.inputHistory.push({ type: 'operator', index: i, value: gameState.operators[i] });
-            }
-            updateDisplay();
+            showFlickPicker(e.currentTarget, i);
         });
     }
 
@@ -634,6 +654,25 @@ window.onload = () => {
             e.preventDefault();
             e.stopPropagation();
             modalMessage.select();
+        }
+    });
+
+    // Setup flick picker option clicks
+    document.querySelectorAll('.flick-option').forEach(option => {
+        option.addEventListener('click', (e) => {
+            const op = e.currentTarget.dataset.op;
+            selectOperator(op);
+        });
+    });
+
+    // Click outside flick picker to close
+    document.addEventListener('click', (e) => {
+        const picker = document.getElementById('flickPicker');
+        const isOperatorButton = e.target.closest('.operator-button');
+        const isFlickOption = e.target.closest('.flick-option');
+
+        if (picker.classList.contains('active') && !isOperatorButton && !isFlickOption) {
+            hideFlickPicker();
         }
     });
 };
