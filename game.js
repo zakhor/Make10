@@ -549,7 +549,7 @@ function adjustFontSize(element) {
         defaultSize = '1.1em';
         defaultSpacing = '0px';
     } else if (element.classList.contains('result-display')) {
-        defaultSize = '1.0em';
+        defaultSize = '1.2em';
         defaultSpacing = '0px';
     }
 
