@@ -1,0 +1,9 @@
+# Build outputs
+*.exe
+*.obj
+
+# Build scripts
+build_and_run.bat
+
+# Generated problem lists
+new_problems.txt
