@@ -112,7 +112,8 @@
             margin-bottom: 25px;
             font-family: 'Courier New', monospace;
             letter-spacing: 5px;
-            word-break: break-all;
+            word-break: keep-all;
+            white-space: nowrap;
         }
 
         .input-area {
@@ -128,6 +129,7 @@
             align-items: center;
             justify-content: center;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
         .row-label {
@@ -148,6 +150,24 @@
             transition: all 0.2s;
             font-family: 'Courier New', monospace;
             min-width: 80px;
+        }
+
+        @media (max-width: 768px) {
+            .input-row {
+                gap: 5px;
+            }
+
+            .row-label {
+                min-width: 60px;
+                font-size: 1em;
+            }
+
+            .operator-button, .paren-button {
+                padding: 10px 8px;
+                font-size: 1em;
+                min-width: 50px;
+                flex: 1;
+            }
         }
 
         .operator-button {
@@ -186,6 +206,7 @@
             background: #fff;
             border: 2px dashed #ddd;
             border-radius: 8px;
+            margin-top: 30px;
             margin-bottom: 20px;
         }
 
@@ -440,10 +461,6 @@
             <button class="mode-button active" data-mode="5">5問</button>
             <button class="mode-button" data-mode="10">10問</button>
             <button class="mode-button" data-mode="15">15問</button>
-            <button class="mode-button" data-mode="30">30問</button>
-            <button class="mode-button" data-mode="50">50問</button>
-            <button class="mode-button" data-mode="100">100問</button>
-            <button class="mode-button" data-mode="all">全問</button>
         </div>
 
         <!-- Game Info -->
@@ -483,24 +500,6 @@
                 <button class="paren-button" data-number="3" id="parenBtn2">　</button>
                 <button class="paren-button" data-number="4" id="parenBtn3">　</button>
             </div>
-
-            <!-- Keyboard Hints -->
-            <div class="keyboard-hints">
-                <div class="hint-line">
-                    <strong>キーボード操作:</strong>
-                </div>
-                <div class="hint-line">
-                    <span style="background: #f3e5f5; padding: 2px 6px; border-radius: 3px; font-weight: bold;">演算子:</span>
-                    <span class="hint-key">Q</span> (+), <span class="hint-key">W</span> (−), <span class="hint-key">E</span> (×), <span class="hint-key">R</span> (÷)
-                </div>
-                <div class="hint-line">
-                    <span style="background: #e8f5e9; padding: 2px 6px; border-radius: 3px; font-weight: bold;">括弧:</span>
-                    <span class="hint-key">1</span>, <span class="hint-key">2</span>, <span class="hint-key">3</span>, <span class="hint-key">4</span>の中から二つを同時押し
-                </div>
-                <div class="hint-line">
-                    <span class="hint-key">Backspace</span> で取り消し（Undo）
-                </div>
-            </div>
         </div>
 
         <!-- Result Display -->
@@ -519,6 +518,24 @@
         <div class="history-section" id="historySection" style="display: none;">
             <div class="history-title">解答履歴</div>
             <div class="history-grid" id="historyGrid"></div>
+        </div>
+
+        <!-- Keyboard Hints -->
+        <div class="keyboard-hints">
+            <div class="hint-line">
+                <strong>キーボード操作:</strong>
+            </div>
+            <div class="hint-line">
+                <span style="background: #f3e5f5; padding: 2px 6px; border-radius: 3px; font-weight: bold;">演算子:</span>
+                <span class="hint-key">Q</span> (+), <span class="hint-key">W</span> (−), <span class="hint-key">E</span> (×), <span class="hint-key">R</span> (÷)
+            </div>
+            <div class="hint-line">
+                <span style="background: #e8f5e9; padding: 2px 6px; border-radius: 3px; font-weight: bold;">括弧:</span>
+                <span class="hint-key">1</span>, <span class="hint-key">2</span>, <span class="hint-key">3</span>, <span class="hint-key">4</span>の中から二つを同時押し
+            </div>
+            <div class="hint-line">
+                <span class="hint-key">Backspace</span> で取り消し（Undo）
+            </div>
         </div>
     </div>
 

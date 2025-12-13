@@ -40,7 +40,7 @@ function setupModeButtons() {
             btn.classList.add('active');
 
             const mode = btn.dataset.mode;
-            gameState.mode = mode === 'all' ? PROBLEMS.length : parseInt(mode);
+            gameState.mode = parseInt(mode);
             resetGame();
         });
     });
@@ -499,7 +499,11 @@ function updateParenButtonVisuals() {
 function updateDisplay() {
     // Update problem display to show current expression
     const expression = buildDisplayExpression();
-    document.getElementById('problemDisplay').textContent = expression;
+    const problemDisplay = document.getElementById('problemDisplay');
+    problemDisplay.textContent = expression;
+
+    // Auto-adjust font size to fit content
+    adjustFontSize(problemDisplay);
 
     // Update operator button text
     for (let i = 0; i < 3; i++) {
@@ -511,6 +515,24 @@ function updateDisplay() {
     updateParenButtonText();
 
     // DO NOT update result display in real-time (only on submit)
+}
+
+function adjustFontSize(element) {
+    // Reset to default size
+    element.style.fontSize = '2em';
+    element.style.letterSpacing = '5px';
+
+    // Check if content overflows
+    while (element.scrollWidth > element.clientWidth && parseFloat(getComputedStyle(element).fontSize) > 12) {
+        const currentSize = parseFloat(getComputedStyle(element).fontSize);
+        element.style.fontSize = (currentSize - 2) + 'px';
+
+        // Also reduce letter spacing proportionally
+        const currentSpacing = parseFloat(getComputedStyle(element).letterSpacing);
+        if (currentSpacing > 1) {
+            element.style.letterSpacing = (currentSpacing - 0.5) + 'px';
+        }
+    }
 }
 
 function updateParenButtonText() {
