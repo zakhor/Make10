@@ -32,14 +32,14 @@ h1 {
     text-align: center;
     color: #666;
     margin-bottom: 25px;
-    font-size: 1.1em;
+    font-size: clamp(0.55em, 3vw, 1.1em);
     white-space: nowrap;
     overflow: hidden;
 }
 
 .mode-selection {
     display: flex;
-    gap: 10px;
+    gap: clamp(5px, 1.5vw, 10px);
     justify-content: center;
     flex-wrap: wrap;
     margin-bottom: 25px;
@@ -48,13 +48,13 @@ h1 {
 }
 
 .mode-button {
-    padding: 10px 20px;
+    padding: clamp(6px, 1.5vw, 10px) clamp(10px, 3vw, 20px);
     border: 2px solid #667eea;
     background: white;
     color: #667eea;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 1em;
+    font-size: clamp(0.7em, 2.5vw, 1em);
     font-weight: bold;
     transition: all 0.3s;
 }
@@ -120,7 +120,7 @@ h1 {
 
 .input-row {
     display: flex;
-    gap: 10px;
+    gap: clamp(3px, 1.5vw, 10px);
     align-items: center;
     justify-content: center;
     margin-bottom: 15px;
@@ -130,14 +130,13 @@ h1 {
 .row-label {
     font-weight: bold;
     color: #667eea;
-    min-width: 80px;
+    min-width: clamp(40px, 12vw, 80px);
     text-align: right;
-    font-size: 1.1em;
+    font-size: clamp(0.7em, 2.5vw, 1.1em);
 }
 
 .operator-button, .paren-button {
     border: 2px solid;
-    font-size: 1.3em;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.2s;
@@ -145,8 +144,9 @@ h1 {
 }
 
 .operator-button {
-    width: 60px;
-    height: 60px;
+    width: clamp(40px, 10vw, 60px);
+    height: clamp(40px, 10vw, 60px);
+    font-size: clamp(0.9em, 2.5vw, 1.3em);
     border-radius: 50%;
     background: #f3e5f5;
     border-color: #9c27b0;
@@ -163,31 +163,14 @@ h1 {
 }
 
 .paren-button {
-    padding: 15px 25px;
+    padding: clamp(6px, 2vw, 15px) clamp(8px, 3vw, 25px);
     border-radius: 8px;
-    min-width: 80px;
+    min-width: clamp(30px, 12vw, 80px);
+    font-size: clamp(0.7em, 2.5vw, 1.3em);
 }
 
 @media (max-width: 768px) {
-    .input-row {
-        gap: 5px;
-    }
-
-    .row-label {
-        min-width: 50px;
-        font-size: 0.9em;
-    }
-
-    .operator-button {
-        width: 50px;
-        height: 50px;
-        font-size: 1em;
-    }
-
     .paren-button {
-        padding: 8px 5px;
-        font-size: 0.9em;
-        min-width: 45px;
         flex: 1;
     }
 }
@@ -239,12 +222,12 @@ h1 {
 
 .result-display {
     text-align: center;
-    padding: 20px;
+    padding: clamp(10px, 3vw, 20px);
     border-radius: 10px;
     margin-bottom: 20px;
-    font-size: 1.2em;
+    font-size: clamp(0.65em, 3vw, 1.2em);
     font-weight: bold;
-    min-height: 70px;
+    min-height: clamp(50px, 10vw, 70px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -272,16 +255,16 @@ h1 {
 
 .action-buttons {
     display: flex;
-    gap: 15px;
+    gap: clamp(5px, 2vw, 15px);
     justify-content: center;
     margin-top: 20px;
 }
 
 .action-button {
-    padding: 12px 30px;
+    padding: clamp(6px, 2vw, 12px) clamp(12px, 4vw, 30px);
     border: none;
     border-radius: 8px;
-    font-size: 1.1em;
+    font-size: clamp(0.65em, 2.5vw, 1.1em);
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s;
@@ -440,18 +423,9 @@ h1 {
         width: 25px;
     }
 
-    .action-button {
-        padding: 10px 15px;
-        font-size: 0.9em;
-    }
-
     .modal-button {
         padding: 10px 20px;
         font-size: 0.9em;
-    }
-
-    .result-display {
-        font-size: 1.0em;
     }
 }
 

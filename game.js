@@ -541,6 +541,14 @@ function updateDisplay() {
 }
 
 function adjustFontSize(element) {
+    // For result-display, use CSS clamp() value directly - don't override
+    if (element.classList.contains('result-display')) {
+        // Clear any inline styles to use CSS clamp()
+        element.style.fontSize = '';
+        element.style.letterSpacing = '';
+        return;
+    }
+
     // Get default size from CSS class or set defaults
     let defaultSize = '2em';
     let defaultSpacing = '5px';
@@ -548,17 +556,14 @@ function adjustFontSize(element) {
     if (element.classList.contains('subtitle')) {
         defaultSize = '1.1em';
         defaultSpacing = '0px';
-    } else if (element.classList.contains('result-display')) {
-        defaultSize = '1.2em';
-        defaultSpacing = '0px';
     }
 
     // Reset to default size
     element.style.fontSize = defaultSize;
     element.style.letterSpacing = defaultSpacing;
 
-    // Set minimum font size based on element type
-    const minFontSize = element.classList.contains('result-display') ? 8 : 12;
+    // Set minimum font size
+    const minFontSize = 12;
 
     // Check if content overflows
     while (element.scrollWidth > element.clientWidth && parseFloat(getComputedStyle(element).fontSize) > minFontSize) {
