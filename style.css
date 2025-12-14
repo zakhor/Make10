@@ -32,9 +32,18 @@ h1 {
     text-align: center;
     color: #666;
     margin-bottom: 25px;
-    font-size: clamp(0.55em, 3vw, 1.1em);
-    white-space: nowrap;
-    overflow: hidden;
+    font-size: clamp(0.45em, 3vw, 1.1em);
+}
+
+.subtitle-main::after {
+    content: '';
+}
+
+@media (max-width: 500px) {
+    .subtitle-main::after {
+        content: '\A';
+        white-space: pre;
+    }
 }
 
 .mode-selection {
@@ -120,17 +129,17 @@ h1 {
 
 .input-row {
     display: flex;
-    gap: clamp(3px, 1.5vw, 10px);
+    gap: clamp(2px, 1.5vw, 10px);
     align-items: center;
     justify-content: center;
     margin-bottom: 15px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
 .row-label {
     font-weight: bold;
     color: #667eea;
-    min-width: clamp(40px, 12vw, 80px);
+    min-width: clamp(32px, 12vw, 80px);
     text-align: right;
     font-size: clamp(0.7em, 2.5vw, 1.1em);
 }
@@ -163,10 +172,10 @@ h1 {
 }
 
 .paren-button {
-    padding: clamp(6px, 2vw, 15px) clamp(8px, 3vw, 25px);
+    padding: clamp(4px, 2vw, 15px) clamp(3px, 3vw, 25px);
     border-radius: 8px;
-    min-width: clamp(30px, 12vw, 80px);
-    font-size: clamp(0.7em, 2.5vw, 1.3em);
+    min-width: clamp(18px, 12vw, 80px);
+    font-size: clamp(0.6em, 2.5vw, 1.3em);
 }
 
 @media (max-width: 768px) {
