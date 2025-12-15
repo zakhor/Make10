@@ -493,8 +493,9 @@ function showFlickPicker(buttonElement, operatorIndex) {
     const rect = buttonElement.getBoundingClientRect();
 
     // Position picker centered on the button
-    picker.style.left = (rect.left + rect.width / 2 - 100) + 'px';
-    picker.style.top = (rect.top + rect.height / 2 - 100) + 'px';
+    // Add scroll position since picker is position: absolute
+    picker.style.left = (rect.left + window.pageXOffset + rect.width / 2 - 100) + 'px';
+    picker.style.top = (rect.top + window.pageYOffset + rect.height / 2 - 100) + 'px';
     picker.style.display = 'block';
     picker.classList.add('active');
 }
@@ -783,7 +784,9 @@ function showTutorial(force = false) {
 
     if (!hasSeenTutorial || force) {
         const overlay = document.getElementById('tutorialOverlay');
-        overlay.style.display = 'flex';
+        const message = document.getElementById('tutorialMessage');
+        overlay.style.display = 'block';
+        message.style.display = 'block';
 
         // Add highlight to operator, paren, and start game buttons
         document.querySelectorAll('.operator-button, .paren-button').forEach(btn => {
@@ -799,7 +802,9 @@ function showTutorial(force = false) {
 
 function hideTutorial() {
     const overlay = document.getElementById('tutorialOverlay');
+    const message = document.getElementById('tutorialMessage');
     overlay.style.display = 'none';
+    message.style.display = 'none';
 
     // Remove highlight
     document.querySelectorAll('.operator-button, .paren-button').forEach(btn => {
@@ -816,8 +821,15 @@ function hideTutorial() {
 }
 
 function resetTutorial() {
-    localStorage.removeItem('make10_tutorial_seen');
-    showTutorial(true);
+    const overlay = document.getElementById('tutorialOverlay');
+
+    // Toggle tutorial: if currently visible, hide it; otherwise show it
+    if (overlay.style.display === 'block') {
+        hideTutorial();
+    } else {
+        localStorage.removeItem('make10_tutorial_seen');
+        showTutorial(true);
+    }
 }
 
 // Initialize on load
