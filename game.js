@@ -12,7 +12,8 @@ let gameState = {
     currentNumbers: [0, 0, 0, 0],
     operators: ['', '', ''],
     parens: new Set(), // Stores paren pairs as "start-end"
-    inputHistory: [] // Track input order for proper undo: {type: 'operator'|'paren', index: number, value: string}
+    inputHistory: [], // Track input order for proper undo: {type: 'operator'|'paren', index: number, value: string}
+    gameStarted: false // Track if game has started
 };
 
 // Keyboard state for simultaneous key press
@@ -93,6 +94,12 @@ function resetGame() {
         clearInterval(gameState.timerInterval);
     }
 
+    // Reset game started flag
+    gameState.gameStarted = false;
+
+    // Show start button again
+    document.getElementById('startGameSection').classList.remove('hidden');
+
     // Shuffle problems based on mode
     let shuffled;
     if (gameState.mode === 'daily') {
@@ -135,10 +142,7 @@ function loadProblem() {
     const numbers = problem.split('').map(n => parseInt(n));
     gameState.currentNumbers = numbers;
 
-    // Start timer on first problem
-    if (gameState.currentProblem === 0 && gameState.startTime === null) {
-        startTimer();
-    }
+    // Don't start timer automatically - wait for start button
 
     // Clear input (keep result display to show previous answer)
     clearInput(true);
@@ -358,6 +362,13 @@ document.addEventListener('keydown', (e) => {
     // Disable game controls when modal is active
     const modal = document.getElementById('gameEndModal');
     if (modal.classList.contains('active')) {
+        return;
+    }
+
+    // Space key to start game (if not started yet)
+    if (e.key === ' ' && !gameState.gameStarted) {
+        e.preventDefault();
+        startGame();
         return;
     }
 
@@ -663,6 +674,11 @@ function updateParenButtonText() {
 }
 
 function buildDisplayExpression() {
+    // If game hasn't started, show question marks
+    if (!gameState.gameStarted) {
+        return '?   ?   ?   ?';
+    }
+
     let expr = '';
     let parenList = Array.from(gameState.parens).map(p => {
         const [start, end] = p.split('-').map(n => parseInt(n));
@@ -741,10 +757,93 @@ function showToast(text) {
     }, 2000);
 }
 
+// Start game function
+function startGame() {
+    if (gameState.gameStarted) return;
+
+    gameState.gameStarted = true;
+
+    // Hide start button
+    document.getElementById('startGameSection').classList.add('hidden');
+
+    // Start timer immediately
+    startTimer();
+
+    // Update display to show actual numbers
+    updateDisplay();
+
+    // Hide tutorial overlay if visible
+    hideTutorial();
+}
+
+// Tutorial functions
+function showTutorial(force = false) {
+    const hasSeenTutorial = localStorage.getItem('make10_tutorial_seen');
+
+    if (!hasSeenTutorial || force) {
+        const overlay = document.getElementById('tutorialOverlay');
+        overlay.style.display = 'flex';
+
+        // Add highlight to operator, paren, and start game buttons
+        document.querySelectorAll('.operator-button, .paren-button').forEach(btn => {
+            btn.classList.add('tutorial-highlight');
+        });
+
+        const startBtn = document.getElementById('startGameBtn');
+        if (startBtn) {
+            startBtn.classList.add('tutorial-highlight');
+        }
+    }
+}
+
+function hideTutorial() {
+    const overlay = document.getElementById('tutorialOverlay');
+    overlay.style.display = 'none';
+
+    // Remove highlight
+    document.querySelectorAll('.operator-button, .paren-button').forEach(btn => {
+        btn.classList.remove('tutorial-highlight');
+    });
+
+    const startBtn = document.getElementById('startGameBtn');
+    if (startBtn) {
+        startBtn.classList.remove('tutorial-highlight');
+    }
+
+    // Mark tutorial as seen
+    localStorage.setItem('make10_tutorial_seen', 'true');
+}
+
+function resetTutorial() {
+    localStorage.removeItem('make10_tutorial_seen');
+    showTutorial(true);
+}
+
 // Initialize on load
 window.onload = () => {
     initGame();
     setupButtonListeners();
+
+    // Setup start game button
+    document.getElementById('startGameBtn').addEventListener('click', () => {
+        startGame();
+    });
+
+    // Setup help button
+    document.getElementById('helpBtn').addEventListener('click', () => {
+        resetTutorial();
+    });
+
+    // Setup play again button
+    document.getElementById('playAgainBtn').addEventListener('click', () => {
+        // Close modal
+        document.getElementById('gameEndModal').classList.remove('active');
+        // Reset game (keeps current mode)
+        resetGame();
+    });
+
+    // Show tutorial for first-time users
+    showTutorial();
 
     // Adjust subtitle font size to fit container
     const subtitle = document.querySelector('.subtitle');

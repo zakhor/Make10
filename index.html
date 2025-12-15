@@ -9,12 +9,19 @@
 <body>
     <div class="container">
         <h1>Make 10</h1>
+        <button class="help-button" id="helpBtn" title="操作ガイドを表示">?</button>
         <p class="subtitle"><span class="subtitle-main">4つの数字で10を作ろう！</span><span class="subtitle-note">（入れ替え禁止・符号なし）</span></p>
 
         <!-- Mode Selection -->
         <div class="mode-selection">
-            <button class="mode-button active" data-mode="daily">Daily</button>
-            <button class="mode-button" data-mode="random">Random</button>
+            <div class="mode-option">
+                <button class="mode-button active" data-mode="daily">Daily</button>
+                <div class="mode-description">今日の5問</div>
+            </div>
+            <div class="mode-option">
+                <button class="mode-button" data-mode="random">Random</button>
+                <div class="mode-description">ランダム5問</div>
+            </div>
         </div>
 
         <!-- Game Info -->
@@ -61,6 +68,11 @@
             記号を入力して確定してください
         </div>
 
+        <!-- Start Game Button -->
+        <div class="start-game-section" id="startGameSection">
+            <button class="start-game-button" id="startGameBtn">ゲーム開始 (Space)</button>
+        </div>
+
         <!-- Action Buttons -->
         <div class="action-buttons">
             <button class="action-button primary" id="submitBtn">確定 (Enter)</button>
@@ -100,13 +112,18 @@
             <textarea id="modalMessage" readonly style="width: 100%; min-height: 150px; font-family: monospace; font-size: 14px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; resize: vertical; margin: 10px 0;"></textarea>
             <div style="display: flex; gap: 10px; justify-content: center;">
                 <button class="modal-button" id="copyButton" onclick="copyResultToClipboard()">コピー</button>
-                <button class="modal-button" onclick="location.reload()">もう一度プレイ</button>
+                <button class="modal-button" id="playAgainBtn">もう一度プレイ</button>
             </div>
         </div>
     </div>
 
     <!-- Toast notification -->
     <div id="toast" class="toast"></div>
+
+    <!-- First-time tutorial overlay -->
+    <div id="tutorialOverlay" class="tutorial-overlay" style="display: none;">
+        <div class="tutorial-message">演算子ボタンをタップして演算子を入力。括弧は二つのボタンを選んで入力しよう！</div>
+    </div>
 
     <!-- Flick picker overlay -->
     <div id="flickPicker" class="flick-picker" style="display: none;">
