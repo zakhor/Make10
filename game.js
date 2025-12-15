@@ -674,10 +674,8 @@ function updateParenButtonText() {
 }
 
 function buildDisplayExpression() {
-    // If game hasn't started, show question marks
-    if (!gameState.gameStarted) {
-        return '?   ?   ?   ?';
-    }
+    // Use question marks if game hasn't started, but still show operators/parens
+    const numbers = gameState.gameStarted ? gameState.currentNumbers : ['?', '?', '?', '?'];
 
     let expr = '';
     let parenList = Array.from(gameState.parens).map(p => {
@@ -691,8 +689,8 @@ function buildDisplayExpression() {
             if (p.start === i * 2) expr += '( ';
         });
 
-        // Add number (no signs - all positive)
-        expr += gameState.currentNumbers[i];
+        // Add number (or question mark if game hasn't started)
+        expr += numbers[i];
 
         // Add closing parens
         parenList.forEach(p => {
@@ -765,6 +763,9 @@ function startGame() {
 
     // Hide start button
     document.getElementById('startGameSection').classList.add('hidden');
+
+    // Clear any operators and parens that were entered during tutorial
+    clearInput();
 
     // Start timer immediately
     startTimer();
