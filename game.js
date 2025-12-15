@@ -2,7 +2,7 @@
 
 // Game state
 let gameState = {
-    mode: 5,
+    mode: 'daily', // 'daily' or 'random'
     currentProblem: 0,
     problems: [],
     correctCount: 0,
@@ -24,6 +24,7 @@ let selectedParenIndices = [];
 // Initialize game
 function initGame() {
     setupModeButtons();
+    updateTheme(); // Set initial theme
     resetGame();
 }
 
@@ -40,10 +41,50 @@ function setupModeButtons() {
             btn.classList.add('active');
 
             const mode = btn.dataset.mode;
-            gameState.mode = parseInt(mode);
+            gameState.mode = mode; // 'daily' or 'random'
+            updateTheme();
             resetGame();
         });
     });
+}
+
+function updateTheme() {
+    const body = document.body;
+    const h1 = document.querySelector('h1');
+
+    if (gameState.mode === 'daily') {
+        body.classList.remove('random-theme');
+        body.classList.add('daily-theme');
+        h1.textContent = 'Daily Make 10';
+    } else {
+        body.classList.remove('daily-theme');
+        body.classList.add('random-theme');
+        h1.textContent = 'Random Make 10';
+    }
+}
+
+// Get JST date seed for daily mode
+function getJSTDateSeed() {
+    // Get current UTC time and convert to JST (UTC+9)
+    const now = new Date();
+    const jstOffset = 9 * 60; // JST is UTC+9 hours in minutes
+    const jstTime = new Date(now.getTime() + jstOffset * 60 * 1000);
+
+    // Return YYYYMMDD format as seed
+    const year = jstTime.getUTCFullYear();
+    const month = String(jstTime.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(jstTime.getUTCDate()).padStart(2, '0');
+    return parseInt(`${year}${month}${day}`);
+}
+
+// Seeded random number generator (Mulberry32)
+function seededRandom(seed) {
+    return function() {
+        seed = (seed + 0x6D2B79F5) | 0;
+        let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
 }
 
 function resetGame() {
@@ -52,16 +93,27 @@ function resetGame() {
         clearInterval(gameState.timerInterval);
     }
 
-    // Shuffle problems
-    const shuffled = [...PROBLEMS].sort(() => Math.random() - 0.5);
-    gameState.problems = shuffled.slice(0, gameState.mode);
+    // Shuffle problems based on mode
+    let shuffled;
+    if (gameState.mode === 'daily') {
+        // Use seeded random for daily mode
+        const seed = getJSTDateSeed();
+        const rng = seededRandom(seed);
+        shuffled = [...PROBLEMS].sort(() => rng() - 0.5);
+    } else {
+        // Use true random for random mode
+        shuffled = [...PROBLEMS].sort(() => Math.random() - 0.5);
+    }
+
+    // Always select 5 problems
+    gameState.problems = shuffled.slice(0, 5);
     gameState.currentProblem = 0;
     gameState.correctCount = 0;
     gameState.startTime = null;
     gameState.history = [];
 
-    // Update UI
-    document.getElementById('totalProblems').textContent = gameState.mode;
+    // Update UI (問題数は5問固定)
+    document.getElementById('totalProblems').textContent = '5';
     document.getElementById('currentProblem').textContent = '1';
     document.getElementById('correctCount').textContent = '0';
     document.getElementById('timer').textContent = '00:00';
@@ -286,17 +338,16 @@ function endGame() {
     clearInterval(gameState.timerInterval);
 
     const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
-    const minutes = Math.floor(elapsed / 60);
-    const seconds = elapsed % 60;
+    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+    const seconds = (elapsed % 60).toString().padStart(2, '0');
 
     const modal = document.getElementById('gameEndModal');
     const message = document.getElementById('modalMessage');
 
-    message.value = `Make 10
+    const title = gameState.mode === 'daily' ? 'Daily Make 10' : 'Random Make 10';
 
-タイム: ${minutes}分${seconds}秒
-正解数: ${gameState.correctCount} / ${gameState.mode}
-
+    message.value = `${title}
+タイム: ${minutes}:${seconds}
 https://zakhor.github.io/Make10/`;
 
     modal.classList.add('active');
@@ -648,11 +699,36 @@ function buildDisplayExpression() {
 // Copy result to clipboard
 function copyResultToClipboard() {
     const message = document.getElementById('modalMessage');
-    message.select();
-    document.execCommand('copy');
+    const text = message.value;
 
-    // Show toast notification
-    showToast('コピーしました！');
+    // Use modern clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('コピーしました！');
+        }).catch(err => {
+            // Fallback to old method
+            fallbackCopyToClipboard(text);
+        });
+    } else {
+        // Fallback for older browsers
+        fallbackCopyToClipboard(text);
+    }
+}
+
+function fallbackCopyToClipboard(text) {
+    const message = document.getElementById('modalMessage');
+    message.select();
+    message.setSelectionRange(0, 99999); // For mobile devices
+
+    try {
+        document.execCommand('copy');
+        showToast('コピーしました！');
+    } catch (err) {
+        showToast('コピーに失敗しました');
+    }
+
+    // Remove selection
+    window.getSelection().removeAllRanges();
 }
 
 // Show toast notification
