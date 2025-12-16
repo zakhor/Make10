@@ -292,7 +292,7 @@ body.random-theme .row-label {
     padding: clamp(4px, 2vw, 15px) clamp(3px, 3vw, 25px);
     border-radius: 8px;
     min-width: clamp(18px, 12vw, 80px);
-    font-size: clamp(0.6em, 2.5vw, 1.3em);
+    font-size: clamp(0.9em, 3.75vw, 1.95em);
 }
 
 @media (max-width: 768px) {
