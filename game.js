@@ -586,7 +586,7 @@ function updateDisplay() {
     // Update problem display to show current expression
     const expression = buildDisplayExpression();
     const problemDisplay = document.getElementById('problemDisplay');
-    problemDisplay.textContent = expression;
+    problemDisplay.innerHTML = expression;
 
     // Auto-adjust font size to fit content
     adjustFontSize(problemDisplay);
@@ -701,7 +701,7 @@ function buildDisplayExpression() {
         // Add operator
         if (i < 3) {
             if (gameState.operators[i]) {
-                expr += ' ' + gameState.operators[i] + ' ';
+                expr += ' <span class="operator">' + gameState.operators[i] + '</span> ';
             } else {
                 expr += '   ';  // Three spaces for empty operator
             }

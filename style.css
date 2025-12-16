@@ -220,6 +220,16 @@ body.random-theme .info-value {
     letter-spacing: 5px;
     word-break: keep-all;
     white-space: nowrap;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.problem-display .operator {
+    font-size: 1.2em;
+    vertical-align: middle;
+    margin: 0 0.3em;
 }
 
 .input-area {
@@ -262,7 +272,7 @@ body.random-theme .row-label {
 .operator-button {
     width: clamp(40px, 10vw, 60px);
     height: clamp(40px, 10vw, 60px);
-    font-size: clamp(0.9em, 2.5vw, 1.3em);
+    font-size: clamp(1.8em, 5vw, 2.6em);
     border-radius: 50%;
     background: #f3e5f5;
     border-color: #9c27b0;
