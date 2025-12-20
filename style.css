@@ -566,7 +566,7 @@ body.random-theme .modal-button:hover {
         font-size: 1.5em;
     }
 
-    .input-cell.sign, .input-cell.operator {
+    .input-cell.operator {
         width: 35px;
     }
 
