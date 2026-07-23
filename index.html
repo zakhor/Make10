@@ -8,6 +8,11 @@
 </head>
 <body>
     <div class="container">
+        <div class="ticket-kicker" aria-hidden="true">
+            <span>T.Y. LAB</span>
+            <span>ARITHMETIC TICKET</span>
+            <span>NO. 0010</span>
+        </div>
         <h1>Daily Make 10</h1>
         <button class="help-button" id="helpBtn" title="操作ガイドを表示">?</button>
         <p class="subtitle"><span class="subtitle-main">4つの数字で10を作ろう！</span><span class="subtitle-note">（入れ替え禁止・符号なし）</span></p>
@@ -15,11 +20,11 @@
         <!-- Mode Selection -->
         <div class="mode-selection">
             <div class="mode-option">
-                <button class="mode-button active" data-mode="daily">Daily</button>
+                <button class="mode-button active" data-mode="daily">DAILY</button>
                 <div class="mode-description">今日の5問</div>
             </div>
             <div class="mode-option">
-                <button class="mode-button" data-mode="random">Random</button>
+                <button class="mode-button" data-mode="random">RANDOM</button>
                 <div class="mode-description">ランダム5問</div>
             </div>
         </div>
@@ -122,7 +127,7 @@
 
     <!-- First-time tutorial overlay -->
     <div id="tutorialOverlay" class="tutorial-overlay" style="display: none;"></div>
-    <div id="tutorialMessage" class="tutorial-message" style="display: none;">演算子ボタンをタップして演算子を入力。括弧は二つのボタンを選んで入力しよう！</div>
+    <div id="tutorialMessage" class="tutorial-message" style="display: none;">演算子ボタンをタップして演算子を入力。括弧は二つのボタンを選んで入力しよう！<br>確認できたら右上の「？」で閉じよう。</div>
 
     <!-- Flick picker overlay -->
     <div id="flickPicker" class="flick-picker" style="display: none;">

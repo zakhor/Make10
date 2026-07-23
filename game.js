@@ -13,7 +13,8 @@ let gameState = {
     operators: ['', '', ''],
     parens: new Set(), // Stores paren pairs as "start-end"
     inputHistory: [], // Track input order for proper undo: {type: 'operator'|'paren', index: number, value: string}
-    gameStarted: false // Track if game has started
+    gameStarted: false, // Track if game has started
+    tutorialActive: false // Only tutorial controls may be used while true
 };
 
 // Keyboard state for simultaneous key press
@@ -244,6 +245,10 @@ function evaluateExpression(expr) {
 }
 
 function submitAnswer() {
+    if (gameState.tutorialActive) {
+        return;
+    }
+
     // Disable submit when modal is active
     const modal = document.getElementById('gameEndModal');
     if (modal.classList.contains('active')) {
@@ -365,6 +370,12 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
+    // Starting or submitting must not be possible behind the tutorial.
+    if (gameState.tutorialActive && (e.key === ' ' || e.key === 'Enter')) {
+        e.preventDefault();
+        return;
+    }
+
     // Space key to start game (if not started yet)
     if (e.key === ' ' && !gameState.gameStarted) {
         e.preventDefault();
@@ -472,11 +483,13 @@ function deleteLastInput() {
 // Button event listeners
 document.getElementById('submitBtn').addEventListener('click', submitAnswer);
 document.getElementById('clearBtn').addEventListener('click', () => {
+    if (gameState.tutorialActive) return;
     const modal = document.getElementById('gameEndModal');
     if (modal.classList.contains('active')) return;
     clearInput();
 });
 document.getElementById('resetBtn').addEventListener('click', () => {
+    if (gameState.tutorialActive) return;
     const modal = document.getElementById('gameEndModal');
     if (modal.classList.contains('active')) return;
     if (confirm('ゲームをリセットしますか？')) {
@@ -758,7 +771,7 @@ function showToast(text) {
 
 // Start game function
 function startGame() {
-    if (gameState.gameStarted) return;
+    if (gameState.gameStarted || gameState.tutorialActive) return;
 
     gameState.gameStarted = true;
 
@@ -779,6 +792,18 @@ function startGame() {
 }
 
 // Tutorial functions
+function setTutorialInteractivity(active) {
+    gameState.tutorialActive = active;
+
+    // Keep only expression input and the help button interactive.
+    document.querySelectorAll('button').forEach(btn => {
+        const isTutorialControl = btn.matches('.operator-button, .paren-button, #helpBtn');
+        btn.disabled = active && !isTutorialControl;
+    });
+
+    document.body.classList.toggle('tutorial-active', active);
+}
+
 function showTutorial(force = false) {
     const hasSeenTutorial = localStorage.getItem('make10_tutorial_seen');
 
@@ -787,16 +812,12 @@ function showTutorial(force = false) {
         const message = document.getElementById('tutorialMessage');
         overlay.style.display = 'block';
         message.style.display = 'block';
+        setTutorialInteractivity(true);
 
-        // Add highlight to operator, paren, and start game buttons
-        document.querySelectorAll('.operator-button, .paren-button').forEach(btn => {
-            btn.classList.add('tutorial-highlight');
+        // Highlight the controls that remain available during the tutorial.
+        document.querySelectorAll('.operator-button, .paren-button, #problemDisplay, #helpBtn').forEach(element => {
+            element.classList.add('tutorial-highlight');
         });
-
-        const startBtn = document.getElementById('startGameBtn');
-        if (startBtn) {
-            startBtn.classList.add('tutorial-highlight');
-        }
     }
 }
 
@@ -805,16 +826,12 @@ function hideTutorial() {
     const message = document.getElementById('tutorialMessage');
     overlay.style.display = 'none';
     message.style.display = 'none';
+    setTutorialInteractivity(false);
 
     // Remove highlight
-    document.querySelectorAll('.operator-button, .paren-button').forEach(btn => {
-        btn.classList.remove('tutorial-highlight');
+    document.querySelectorAll('.operator-button, .paren-button, #problemDisplay, #helpBtn').forEach(element => {
+        element.classList.remove('tutorial-highlight');
     });
-
-    const startBtn = document.getElementById('startGameBtn');
-    if (startBtn) {
-        startBtn.classList.remove('tutorial-highlight');
-    }
 
     // Mark tutorial as seen
     localStorage.setItem('make10_tutorial_seen', 'true');

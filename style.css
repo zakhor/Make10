@@ -728,16 +728,616 @@ body.random-theme .modal-button:hover {
 }
 
 .tutorial-highlight {
-    animation: buttonPulse 1.5s ease-in-out infinite;
     position: relative;
     z-index: 10001;
 }
 
-@keyframes buttonPulse {
-    0%, 100% {
-        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+/* ================================================================
+   HARD TICKET THEME
+   A warm, letterpress-inspired visual system based on old railway
+   tickets. Kept at the end so the original game-state styles remain
+   intact while the presentation can be replaced as one layer.
+   ================================================================ */
+
+:root {
+    --ticket-paper: #e8d7ad;
+    --ticket-paper-light: #f5e9c9;
+    --ticket-paper-dark: #d5bd89;
+    --ticket-ink: #172d38;
+    --ticket-muted: #6f6654;
+    --ticket-rule: rgba(23, 45, 56, 0.55);
+    --ticket-red: #9f3026;
+    --ticket-red-dark: #76231d;
+    --ticket-green: #285d4b;
+}
+
+body,
+body.daily-theme,
+body.random-theme {
+    padding: clamp(12px, 3vw, 32px);
+    color: var(--ticket-ink);
+    background-color: #23353b;
+    background-image:
+        radial-gradient(circle at 15% 22%, rgba(255,255,255,.035) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 78% 68%, rgba(0,0,0,.08) 0 1px, transparent 1.5px),
+        linear-gradient(115deg, #192a30, #30454a 52%, #1c3036);
+    background-size: 17px 17px, 23px 23px, auto;
+    font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    transition: none;
+}
+
+.container {
+    position: relative;
+    max-width: 860px;
+    padding: clamp(24px, 5vw, 48px) clamp(18px, 6vw, 58px) 42px;
+    overflow: hidden;
+    border: 1px solid #b49c6d;
+    border-radius: 2px;
+    background-color: var(--ticket-paper);
+    background-image:
+        radial-gradient(circle at 20% 15%, rgba(255,255,255,.26) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 72% 77%, rgba(84,63,28,.09) 0 1px, transparent 1.4px),
+        repeating-linear-gradient(2deg, transparent 0 5px, rgba(77,54,22,.018) 5px 6px);
+    background-size: 13px 13px, 19px 19px, auto;
+    box-shadow: 8px 10px 0 rgba(0,0,0,.22), 0 22px 55px rgba(0,0,0,.28);
+}
+
+.container::before,
+.container::after {
+    content: "";
+    position: absolute;
+    top: 245px;
+    width: 28px;
+    height: 56px;
+    z-index: 5;
+    border: 1px solid #b49c6d;
+    background: #23353b;
+}
+
+.container::before {
+    left: -15px;
+    border-radius: 0 30px 30px 0;
+}
+
+.container::after {
+    right: -15px;
+    border-radius: 30px 0 0 30px;
+}
+
+.ticket-kicker {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 13px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--ticket-rule);
+    color: var(--ticket-muted);
+    font-family: "Courier New", monospace;
+    font-size: clamp(9px, 1.7vw, 12px);
+    font-weight: 700;
+    letter-spacing: .14em;
+}
+
+h1,
+body.daily-theme h1,
+body.random-theme h1 {
+    margin: 0 0 5px;
+    color: var(--ticket-ink);
+    font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+    font-size: clamp(2rem, 7vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 0 rgba(255,255,255,.35);
+}
+
+h1::after {
+    content: "TEN";
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    margin-left: 14px;
+    align-items: center;
+    justify-content: center;
+    border: 3px double var(--ticket-red);
+    border-radius: 50%;
+    color: var(--ticket-red);
+    font: 700 10px/1 "Courier New", monospace;
+    letter-spacing: .12em;
+    vertical-align: .45em;
+    transform: rotate(-8deg);
+}
+
+.subtitle {
+    margin-bottom: 22px;
+    color: var(--ticket-muted);
+    font-size: clamp(.75rem, 2.5vw, 1rem);
+    letter-spacing: .06em;
+}
+
+.help-button,
+body.daily-theme .help-button,
+body.random-theme .help-button {
+    top: 50px;
+    right: clamp(18px, 5vw, 48px);
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--ticket-ink);
+    border-radius: 50%;
+    color: var(--ticket-ink);
+    background: transparent;
+    box-shadow: none;
+    font-family: "Courier New", monospace;
+    font-size: 1rem;
+}
+
+.help-button:hover,
+body.daily-theme .help-button:hover,
+body.random-theme .help-button:hover {
+    color: var(--ticket-paper-light);
+    background: var(--ticket-ink);
+    box-shadow: none;
+    transform: none;
+}
+
+.mode-selection {
+    gap: 0;
+    align-items: start;
+    margin-bottom: 18px;
+    padding: 15px 0 18px;
+    border-top: 1px dashed var(--ticket-rule);
+    border-bottom: 1px dashed var(--ticket-rule);
+}
+
+.mode-option { gap: 6px; }
+
+.mode-button,
+body.random-theme .mode-button {
+    min-width: 112px;
+    padding: 8px 18px;
+    border: 1px solid var(--ticket-ink);
+    border-radius: 0;
+    color: var(--ticket-ink);
+    background: transparent;
+    font-family: "Courier New", monospace;
+    font-size: .9rem;
+    letter-spacing: .1em;
+    transition: background-color .12s, color .12s;
+}
+
+.mode-option + .mode-option .mode-button { border-left: 0; }
+
+.mode-button:hover,
+.mode-button.active,
+body.random-theme .mode-button:hover,
+body.random-theme .mode-button.active {
+    color: var(--ticket-paper-light);
+    background: var(--ticket-ink);
+    transform: none;
+}
+
+.mode-description {
+    color: var(--ticket-muted);
+    font-size: .7rem;
+    letter-spacing: .06em;
+}
+
+.game-info {
+    margin-bottom: 18px;
+    padding: 0;
+    border: 1px solid var(--ticket-rule);
+    border-radius: 0;
+    background: rgba(255,255,255,.11);
+}
+
+.info-item {
+    flex: 1;
+    padding: 10px 8px 9px;
+}
+
+.info-item + .info-item { border-left: 1px solid var(--ticket-rule); }
+
+.info-label {
+    margin-bottom: 3px;
+    color: var(--ticket-muted);
+    font-size: .67rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+}
+
+.info-value,
+body.random-theme .info-value {
+    color: var(--ticket-ink);
+    font-family: "Courier New", monospace;
+    font-size: clamp(1.25rem, 5vw, 1.8rem);
+    letter-spacing: .05em;
+}
+
+.problem-display {
+    position: relative;
+    min-height: 132px;
+    margin-bottom: 18px;
+    padding: 28px 18px;
+    border: 3px double var(--ticket-ink);
+    border-radius: 0;
+    color: var(--ticket-ink);
+    background: rgba(255,249,229,.38);
+    font-family: "Courier New", monospace;
+    font-size: clamp(1.55rem, 6vw, 2.8rem);
+    letter-spacing: clamp(1px, 1vw, 6px);
+    box-shadow: inset 0 0 0 4px rgba(23,45,56,.05);
+}
+
+.problem-display::before {
+    content: "MAKE 10 / USE ALL FOUR DIGITS";
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    color: var(--ticket-muted);
+    font: 700 9px/1 "Courier New", monospace;
+    letter-spacing: .11em;
+}
+
+.input-area {
+    margin-bottom: 15px;
+    padding: 18px 12px 8px;
+    border: 1px solid var(--ticket-rule);
+    border-radius: 0;
+    background: rgba(255,255,255,.12);
+}
+
+.input-row { margin-bottom: 12px; }
+
+.row-label,
+body.random-theme .row-label {
+    color: var(--ticket-muted);
+    font-size: clamp(.68rem, 2.2vw, .86rem);
+    letter-spacing: .08em;
+}
+
+.operator-button,
+.paren-button {
+    border: 1px solid var(--ticket-ink);
+    border-radius: 1px;
+    color: var(--ticket-ink);
+    background: var(--ticket-paper-light);
+    box-shadow: 2px 3px 0 var(--ticket-ink);
+    transition: transform .08s, box-shadow .08s, background-color .08s;
+}
+
+.operator-button {
+    width: clamp(43px, 11vw, 58px);
+    height: clamp(43px, 11vw, 58px);
+    border-radius: 1px;
+    font-size: clamp(1.55rem, 5vw, 2.2rem);
+}
+
+.paren-button {
+    padding: clamp(6px, 2vw, 12px) clamp(4px, 3vw, 20px);
+    min-width: clamp(30px, 12vw, 74px);
+    font-size: clamp(.95rem, 3.75vw, 1.7rem);
+}
+
+.operator-button:hover,
+.paren-button:hover,
+.paren-button.selected {
+    color: var(--ticket-paper-light);
+    border-width: 1px;
+    background: var(--ticket-ink);
+    box-shadow: 1px 1px 0 var(--ticket-ink);
+    transform: translate(1px, 2px);
+}
+
+.result-display {
+    position: relative;
+    min-height: 64px;
+    margin-bottom: 16px;
+    padding: 13px 20px;
+    border-radius: 0;
+    font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+    font-size: clamp(.72rem, 3vw, 1.08rem);
+    letter-spacing: .04em;
+}
+
+.result-display.empty {
+    border: 1px dashed var(--ticket-rule);
+    color: var(--ticket-muted);
+    background: transparent;
+}
+
+.result-display.correct {
+    border: 2px solid var(--ticket-red);
+    color: var(--ticket-red-dark);
+    background: rgba(159,48,38,.06);
+    transform: rotate(-.25deg);
+}
+
+.result-display.incorrect {
+    border: 1px solid var(--ticket-ink);
+    color: var(--ticket-ink);
+    background: repeating-linear-gradient(-45deg, rgba(23,45,56,.035) 0 5px, transparent 5px 10px);
+}
+
+.action-buttons { gap: 8px; }
+
+.action-button,
+.start-game-button,
+.modal-button,
+body.daily-theme .modal-button,
+body.random-theme .modal-button {
+    border: 1px solid var(--ticket-ink);
+    border-radius: 1px;
+    color: var(--ticket-ink);
+    background: transparent;
+    box-shadow: 2px 3px 0 var(--ticket-ink);
+    font-family: "Yu Gothic", sans-serif;
+    letter-spacing: .05em;
+    transition: transform .08s, box-shadow .08s, background-color .08s;
+}
+
+.action-button.primary,
+.start-game-button {
+    color: var(--ticket-paper-light);
+    background: var(--ticket-red);
+    border-color: var(--ticket-red-dark);
+    box-shadow: 2px 3px 0 var(--ticket-red-dark);
+}
+
+.action-button.secondary,
+.action-button.danger { background: rgba(255,255,255,.18); color: var(--ticket-ink); }
+
+.action-button:hover,
+.start-game-button:hover,
+.modal-button:hover,
+body.daily-theme .modal-button:hover,
+body.random-theme .modal-button:hover {
+    color: var(--ticket-paper-light);
+    background: var(--ticket-ink);
+    box-shadow: 1px 1px 0 var(--ticket-ink);
+    transform: translate(1px, 2px);
+}
+
+.start-game-section { margin: 24px 0; }
+
+.start-game-button {
+    padding: clamp(13px, 3vw, 18px) clamp(28px, 8vw, 58px);
+    font-size: clamp(.95rem, 4vw, 1.45rem);
+}
+
+.keyboard-hints {
+    margin-top: 28px;
+    padding: 15px;
+    border: 1px dashed var(--ticket-rule);
+    border-radius: 0;
+    background: rgba(255,255,255,.1);
+}
+
+.hint-line { color: var(--ticket-muted); font-size: .82rem; }
+
+.hint-line > span[style] {
+    color: var(--ticket-ink) !important;
+    background: transparent !important;
+    border-bottom: 1px solid var(--ticket-rule);
+    border-radius: 0 !important;
+}
+
+.hint-key {
+    border: 1px solid var(--ticket-rule);
+    border-radius: 0;
+    color: var(--ticket-ink);
+    background: var(--ticket-paper-light);
+    box-shadow: 1px 1px 0 var(--ticket-rule);
+}
+
+.history-section { border-top: 1px dashed var(--ticket-rule); }
+.history-title { color: var(--ticket-ink); font-family: "Yu Mincho", serif; }
+
+.history-item,
+.history-item.correct,
+.history-item.incorrect {
+    border: 1px solid var(--ticket-rule);
+    border-left-width: 1px;
+    border-radius: 0;
+    color: var(--ticket-ink);
+    background: rgba(255,255,255,.12);
+}
+
+.history-item.correct { border-color: var(--ticket-green); }
+.history-item.incorrect { border-color: var(--ticket-red); }
+
+.modal { background: rgba(10,22,27,.76); }
+
+.modal-content {
+    width: min(500px, calc(100% - 28px));
+    padding: clamp(24px, 5vw, 40px);
+    border: 1px solid #b49c6d;
+    border-radius: 1px;
+    color: var(--ticket-ink);
+    background: var(--ticket-paper);
+    box-shadow: 7px 9px 0 rgba(0,0,0,.3);
+}
+
+.modal-content h2,
+body.daily-theme .modal-content h2,
+body.random-theme .modal-content h2 {
+    color: var(--ticket-red);
+    font-family: "Yu Mincho", serif;
+}
+
+#modalMessage {
+    border: 1px solid var(--ticket-rule) !important;
+    border-radius: 0 !important;
+    color: var(--ticket-ink);
+    background: var(--ticket-paper-light);
+}
+
+.toast {
+    border: 1px solid var(--ticket-paper-dark);
+    border-radius: 1px;
+    color: var(--ticket-paper-light);
+    background: var(--ticket-ink);
+    font-family: "Courier New", monospace;
+}
+
+.tutorial-message {
+    border: 2px solid var(--ticket-ink);
+    border-radius: 1px;
+    color: var(--ticket-ink);
+    background: var(--ticket-paper-light);
+    box-shadow: 5px 6px 0 rgba(0,0,0,.28);
+}
+
+.flick-picker.active { border-radius: 50%; background: rgba(23,45,56,.24); }
+
+.flick-option {
+    border: 2px solid var(--ticket-ink);
+    color: var(--ticket-ink);
+    background: var(--ticket-paper-light);
+    box-shadow: 2px 3px 0 var(--ticket-ink);
+}
+
+.flick-option:hover { color: var(--ticket-paper-light); background: var(--ticket-ink); box-shadow: none; }
+
+body.tutorial-active button:disabled {
+    cursor: not-allowed;
+    opacity: .42;
+    filter: grayscale(.65);
+    box-shadow: none;
+    transform: none;
+}
+
+body.tutorial-active .mode-button:disabled,
+body.tutorial-active .action-button:disabled,
+body.tutorial-active .start-game-button:disabled {
+    color: var(--ticket-muted);
+    border-color: var(--ticket-rule);
+    background: rgba(255,255,255,.08);
+}
+
+body.tutorial-active .help-button {
+    position: absolute;
+    z-index: 10003;
+    background: #fff4c7 !important;
+    box-shadow: 0 0 0 4px rgba(255, 244, 199, .65) !important;
+}
+
+body.tutorial-active .tutorial-overlay {
+    -webkit-mask-image: radial-gradient(
+        circle 24px at min(
+            calc(100% - clamp(12px, 3vw, 32px) - clamp(18px, 5vw, 48px) - 17px),
+            calc(50% + 365px)
+        ) calc(clamp(12px, 3vw, 32px) + 67px),
+        transparent 0 23px,
+        #000 24px
+    );
+    mask-image: radial-gradient(
+        circle 24px at min(
+            calc(100% - clamp(12px, 3vw, 32px) - clamp(18px, 5vw, 48px) - 17px),
+            calc(50% + 365px)
+        ) calc(clamp(12px, 3vw, 32px) + 67px),
+        transparent 0 23px,
+        #000 24px
+    );
+}
+
+.problem-display.tutorial-highlight {
+    position: relative;
+    z-index: 10001;
+    background: var(--ticket-paper-light);
+}
+
+@media (max-width: 560px) {
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
     }
-    50% {
-        box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+
+    body,
+    body.daily-theme,
+    body.random-theme { padding: 0; background: var(--ticket-paper-dark); }
+
+    .container {
+        width: 100vw;
+        max-width: 100%;
+        min-width: 0;
+        min-height: 100vh;
+        padding: 20px 13px 30px;
+        border: 0;
+        box-shadow: none;
+    }
+
+    .container::before,
+    .container::after { display: none; }
+
+    .ticket-kicker span:nth-child(2) { display: none; }
+
+    h1,
+    body.daily-theme h1,
+    body.random-theme h1 {
+        padding-right: 38px;
+        font-size: clamp(1.65rem, 9.2vw, 2.25rem);
+        letter-spacing: 0;
+        white-space: nowrap;
+    }
+
+    h1::after { display: none; }
+
+    .help-button,
+    body.daily-theme .help-button,
+    body.random-theme .help-button { top: 45px; right: 13px; }
+
+    body.tutorial-active .tutorial-overlay {
+        -webkit-mask-image: radial-gradient(circle 24px at calc(100% - 30px) 62px, transparent 0 23px, #000 24px);
+        mask-image: radial-gradient(circle 24px at calc(100% - 30px) 62px, transparent 0 23px, #000 24px);
+    }
+
+    .game-info,
+    .info-item,
+    .problem-display,
+    .input-area,
+    .input-row,
+    .action-buttons { min-width: 0; }
+
+    .problem-display {
+        width: 100%;
+        min-height: 110px;
+        padding: 25px 8px 18px;
+        font-size: clamp(1.35rem, 7vw, 2rem);
+    }
+
+    .input-area { width: 100%; padding-inline: 6px; }
+
+    .input-row { width: 100%; gap: 5px; }
+
+    .row-label { flex: 0 0 52px; min-width: 0; }
+
+    .operator-button { flex: 0 1 58px; min-width: 0; }
+
+    .paren-button {
+        flex: 1 1 0;
+        min-width: 0;
+        padding-inline: 2px;
+    }
+
+    .action-button {
+        flex: 1 1 0;
+        min-width: 0;
+        padding-inline: 3px;
+        white-space: nowrap;
+    }
+
+    .keyboard-hints { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
     }
 }
